@@ -3,7 +3,6 @@ import sys
 
 class ConfigFileReader:
 
-
     def validitaeFileName(self, fileName):
         fileNameLength = len(fileName)
 
@@ -33,7 +32,6 @@ class ConfigFileReader:
 
         for i in range(len(lines)):
             currentLine = lines[i].strip().split()
-            # print currentLine
 
             # Ignore comments and empty lines
             if currentLine == []:

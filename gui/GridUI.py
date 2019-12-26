@@ -5,14 +5,24 @@ from gui.Colors import Colors
 
 class GridUI(Frame):
 
-    FRAME_TITLE = "GridWorld"
+	FRAME_TITLE = "GridWorld"
 
-    def __init__(self, parent, height, width, cellSize, grid, robots, frontier):
-        Frame.__init__(self, parent)
-        self.parent = parent
-        self.initialize(height, width, cellSize, grid, robots, frontier)
+	def __init__(self, parent, height, width, cellSize, grid, robots, frontier):
+		Frame.__init__(self, parent)
+		self.parent = parent
+		self.initializeFrame(parent, height, width, cellSize)
+		self.initializeGrid(height, width, cellSize, grid, robots, frontier)
 
-    def initialize(self, height, width, cellSize, grid, robots, frontier):
+	def initializeFrame(self, frame, height, width, cellSize):
+		"""Sets the correct frame size"""
+		frameHeight = str((height + 2) * cellSize)
+		frameWidth = str((width + 2) * cellSize)
+		xOffset, yOffset = self.getOffsets(height, width)
+		geometryParameters = frameWidth + 'x' + frameHeight + '+' + str(xOffset) + '+' + str(yOffset)
+		
+		frame.geometry(geometryParameters)
+
+	def initializeGrid(self, height, width, cellSize, grid, robots, frontier):
 		self.parent.title(GridUI.FRAME_TITLE)
 		self.pack(fill = BOTH, expand = 1)
 
@@ -44,7 +54,7 @@ class GridUI(Frame):
 
 		self.canvas.pack(fill = BOTH, expand = 1)
 
-    def redraw(self, height, width, cellSize, grid, robots, frontier):
+	def redraw(self, height, width, cellSize, grid, robots, frontier):
 		self.parent.title(GridUI.FRAME_TITLE)
 		self.pack(fill = BOTH, expand = 1)
 
@@ -76,48 +86,59 @@ class GridUI(Frame):
 
 		self.canvas.pack(fill = BOTH, expand = 1)
 
-    def drawRectangles(self, grid, curX, curY, xIdx, yIdx, cellSize, robots, frontier):
-        robotFlag = self.drawRobotRectangles(curX, curY, xIdx, yIdx, cellSize, robots)
+	def drawRectangles(self, grid, curX, curY, xIdx, yIdx, cellSize, robots, frontier):
+		robotFlag = self.drawRobotRectangles(curX, curY, xIdx, yIdx, cellSize, robots)
 
-        if self.isObstacle(grid, xIdx, yIdx):
-            self.canvas.create_rectangle(curX, curY, curX + cellSize, curY + cellSize, outline = Colors.OUTLINE, fill = Colors.OBSTACLE, width = 2)	
-        elif robotFlag == False:
-            frontierFlag = self.drawFrontierRectangles(curX, curY, xIdx, yIdx, cellSize, frontier, grid)
+		if self.isObstacle(grid, xIdx, yIdx):
+			self.canvas.create_rectangle(curX, curY, curX + cellSize, curY + cellSize, outline = Colors.OUTLINE, fill = Colors.OBSTACLE, width = 2)	
+		elif robotFlag == False:
+			frontierFlag = self.drawFrontierRectangles(curX, curY, xIdx, yIdx, cellSize, frontier, grid)
 
-            if frontierFlag == False:
-                if self.isVisited(grid, xIdx, yIdx):
-                    self.canvas.create_rectangle(curX, curY, curX + cellSize, curY + cellSize, outline = Colors.OUTLINE, fill = Colors.VISITED, width = 2)
-                else:
-                    self.canvas.create_rectangle(curX, curY, curX + cellSize, curY + cellSize, outline = Colors.OUTLINE, fill = Colors.UNVISITED, width = 2)
+			if frontierFlag == False:
+				if self.isVisited(grid, xIdx, yIdx):
+					self.canvas.create_rectangle(curX, curY, curX + cellSize, curY + cellSize, outline = Colors.OUTLINE, fill = Colors.VISITED, width = 2)
+				else:
+					self.canvas.create_rectangle(curX, curY, curX + cellSize, curY + cellSize, outline = Colors.OUTLINE, fill = Colors.UNVISITED, width = 2)
 
-    def drawRobotRectangles(self, curX, curY, xIdx, yIdx, cellSize, robots):
-        """Check if the current location corresponds to that of any robot"""
+	def drawRobotRectangles(self, curX, curY, xIdx, yIdx, cellSize, robots):
+		"""Check if the current location corresponds to that of any robot"""
 
-        robotFlag = False
-        for robot in robots:
-            if robot.curX == xIdx and robot.curY == yIdx:
-                robotFlag = True
-                self.canvas.create_rectangle(curX, curY, curX + cellSize, curY + cellSize, outline = Colors.OUTLINE, fill = Colors.AGENT, width = 2)
+		robotFlag = False
+		for robot in robots:
+			if robot.curX == xIdx and robot.curY == yIdx:
+				robotFlag = True
+				self.canvas.create_rectangle(curX, curY, curX + cellSize, curY + cellSize, outline = Colors.OUTLINE, fill = Colors.AGENT, width = 2)
 
-        return robotFlag
+		return robotFlag
 
-    def drawFrontierRectangles(self, curX, curY, xIdx, yIdx, cellSize, frontier, grid):
-        """Ceck if the current location corresponds to that of any frontier block"""
+	def drawFrontierRectangles(self, curX, curY, xIdx, yIdx, cellSize, frontier, grid):
+		"""Ceck if the current location corresponds to that of any frontier block"""
 
-        frontierFlag = False
-        for pt in frontier:
-            if pt[0] == xIdx and pt[1] == yIdx:
-                self.canvas.create_rectangle(curX, curY, curX + cellSize, curY + cellSize, outline = Colors.OUTLINE, fill = Colors.FRONTIER, width = 2)
-                frontierFlag = True
+		frontierFlag = False
+		for pt in frontier:
+			if pt[0] == xIdx and pt[1] == yIdx:
+				self.canvas.create_rectangle(curX, curY, curX + cellSize, curY + cellSize, outline = Colors.OUTLINE, fill = Colors.FRONTIER, width = 2)
+				frontierFlag = True
 
-        return frontierFlag
+		return frontierFlag
 
-    def isObstacle(self, grid, xIdx, yIdx):
-        """Cehck if the current grid element is an obstacle"""
+	def isObstacle(self, grid, xIdx, yIdx):
+		"""Cehck if the current grid element is an obstacle"""
 
-        return grid.cells[xIdx][yIdx].obstacle
+		return grid.cells[xIdx][yIdx].obstacle
 
-    def isVisited(self, grid, xIdx, yIdx):
+	def isVisited(self, grid, xIdx, yIdx):
 		"""Check if the current grid element is already visited"""
 
 		return grid.cells[xIdx][yIdx].visited
+
+	def getOffsets(self, height, width):
+		"""Defines an offset from the top left corner of the screen. If the frame is smaller then the threshol the offset is bigger"""
+		xOffset = 100
+		yOffset = 100
+		if height <= 10:
+			xOffset = 300
+		if width <= 10:
+			yOffset = 300
+
+		return (xOffset, yOffset)
