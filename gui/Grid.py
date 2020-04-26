@@ -22,7 +22,7 @@ class Grid:
 		return self.cells[x][y].obstacle
 
 	def getCorrectNeighbours(self, neighbors):
-		"""Filters all neighbouring cells which are not in the grid or are obstacles"""
+		"""Filters out all neighbouring cells which are not in the grid or are obstacles"""
 		neighbors = filter(self.inGrid, neighbors)
 		return filterfalse(self.isObstacle, neighbors)
 

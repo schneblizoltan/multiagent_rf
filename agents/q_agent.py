@@ -2,21 +2,20 @@
 
 import numpy as np
 import random
+from agents.Agent import Agent
 
-class QAgent(object):
+class QAgent(Agent):
     """
     Agent implementing Q-learning algorithm.
     """
 
-    def __init__(self, observation_space, state_n, action_n, dist_file_name, reward_file_name):
+    def __init__(self, id, curX, curY, state_n, action_n, observation_space="asd"):
+        super().__init__(id, curX, curY)
         self.obs = observation_space
         self.state_n = state_n
         self.action_n = action_n
-        self.location_distance = dist_file_name
-        self.location_reward = reward_file_name
         self.q = np.zeros((self.state_n, self.action_n)).astype("float32")
         self.state = 0
-        self.load_from_file('q_matrix.txt')
         self.distance = 0
         self.cumulative_reward = 0
         self.config = {
@@ -26,13 +25,6 @@ class QAgent(object):
             "eps_min": 0.1,         
             "gamma": 0.95,                                                                  # Discount
             "n_iter": 15000 }                                                               # Number of iterations
-
-    def load_from_file(self, file):
-        i = 0
-        print(self.q)
-        for line in open(file):
-            self.q[i] = np.fromstring(line, dtype="float32", sep="     ")
-            i += 1
 
     def act(self, eps=None):
         if eps is None:

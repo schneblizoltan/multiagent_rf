@@ -1,4 +1,4 @@
-class Agent:
+class Agent(object):
 
 	def __init__(self, id, curX, curY):
 		self.id = id
