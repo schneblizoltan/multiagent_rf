@@ -9,10 +9,8 @@ from agents.Agent import Agent
 
 class Environment:
 
-	# Number of action wich the agent knows about: N, NW, NE, SW, E, SE, S, W
-	ACTION_NR = 8
-	# Number of states defined
-	STATE_NR = 13										   
+	ACTION_NR = 8					# Number of action wich the agent knows about: N, NW, NE, SW, E, SE, S, W
+	STATE_NR = 13					# Number of states defined
 
 
 	def __init__(self, height, width, gridworld, agents = []):
@@ -22,11 +20,17 @@ class Environment:
 		self.height = height
 		self.width = width
 		self.reward_matrix = np.zeros((self.state_n, self.action_n)).astype("float32")
-		self.reward_matrix = self.get_reward_matrix()
+		self.reward_matrix = self.getRewardMatrix()
 		self.completedFlag = False
 		self.frontier = []
 
-	def get_reward_matrix(self):
+	def updateFrontiers(self):
+		self.frontier = self.computeFrontier()
+
+	def getState(self, id):
+		return id
+
+	def getRewardMatrix(self):
 		# Action order: N, NW, NE, SW, E, SE, S, W
 
 		# State 0 - No enemy in front, no block above, no block in front
@@ -73,9 +77,6 @@ class Environment:
 	# Method to print(the current grid to the output descriptor)
 	def printGrid(self):
 
-		## Comment this later
-		frontier = self.computeFrontier()
-
 		for i in range(self.height):
 			for j in range(self.width):
 				# If the current cell is an obstacle, print(#)
@@ -83,14 +84,14 @@ class Environment:
 					sys.stdout.write(' # ')
 				# If the current cell is occupied by an agent, print(its id)
 				elif self.gridworld.cells[i][j].occupied == True:
-					robotId = 0
-					for robot in self.agents:
-						if robot.curX == i and robot.curY == j:
-							robotId = robot.id
-					temp = ' ' + str(robotId) + ' '
+					agentId = 0
+					for agent in self.agents:
+						if agent.curX == i and agent.curY == j:
+							agentId = agent.id
+					temp = ' ' + str(agentId) + ' '
 					sys.stdout.write(temp)
 				# If the current cell is a frontier, print(a |)
-				elif (i, j) in frontier:
+				elif (i, j) in self.frontier:
 					sys.stdout.write(' | ')
 				# Otherwise, print(-)
 				else:
@@ -100,7 +101,7 @@ class Environment:
 						sys.stdout.write(' - ')
 			sys.stdout.write('\n')
 
-	# Method to compute the frontier
+	# Method to compute the frontiers
 	def computeFrontier(self):
 
 		frontier = []
@@ -124,3 +125,17 @@ class Environment:
 						frontier.append((i, j))
 
 		return frontier
+
+	def step(self, id, action):
+		cell = self.gridworld.cells[self.agents[id].curX][self.agents[id].curY - 1]
+		if cell.occupied == False and cell.obstacle == False:
+			self.gridworld.cells[self.agents[id].curX][self.agents[id].curY].occupied = False
+			self.agents[id].curY = self.agents[id].curY - 1
+			self.gridworld.cells[self.agents[id].curX][self.agents[id].curY].visited = True
+			self.gridworld.cells[self.agents[id].curX][self.agents[id].curY].occupied = True
+			
+		return 1, False
+
+	def runOneIter(self):
+		self.agents[0].step(self)
+		self.updateFrontiers()
