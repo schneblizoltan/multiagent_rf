@@ -31,7 +31,7 @@ def printConfigValues(height, width, numRobots, initLocs, obstacles):
 def initGridWorld(width, height, obstacles, initLocs, numRobots):
     gridworld = Grid.Grid(width, height, obstacles)
     env = Environment(height, width, gridworld)
-    agents = [QAgent(j+1, -1, -1, env.state_n, env.action_n) for j in range(numRobots)]
+    agents = [QAgent(j, -1, -1, env.state_n, env.action_n) for j in range(numRobots)]
 
     i = 0
     for initLoc in initLocs:

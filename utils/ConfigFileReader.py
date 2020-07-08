@@ -21,7 +21,7 @@ class ConfigFileReader:
         obstacleFlag = False
         height = 0
         width = 0
-        numRobots = 0
+        numAgents = 0
         initLocs = []
         obstacles = []
         # Used in counting the number of initLocs read
@@ -41,7 +41,7 @@ class ConfigFileReader:
                 temp.append(int(currentLine[1]))
                 initLocs.append(temp)
                 tempCount += 1
-                if tempCount == numRobots:
+                if tempCount == numAgents:
                     initLocsFlag = False
             elif obstacleFlag == True:
                 temp = []
@@ -52,8 +52,8 @@ class ConfigFileReader:
                 height = int(currentLine[1])
             elif currentLine[0] == 'width':
                 width = int(currentLine[1])
-            elif currentLine[0] == 'numRobots':
-                numRobots = int(currentLine[1])
+            elif currentLine[0] == 'numAgents':
+                numAgents = int(currentLine[1])
             elif currentLine[0] == 'initLocs':
                 initLocsFlag = True
             elif currentLine[0] == 'obstacles':
@@ -62,6 +62,6 @@ class ConfigFileReader:
                 print('Invalid configuration file syntax')
                 if initLocsFlag == True:
                     print('Check the number of initLocs provided in the configuration file.')
-                return -1, height, width, numRobots, initLocs, obstacles
+                return -1, height, width, numAgents, initLocs, obstacles
 
-        return 0, height, width, numRobots, initLocs, obstacles
+        return 0, height, width, numAgents, initLocs, obstacles

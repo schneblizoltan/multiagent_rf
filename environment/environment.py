@@ -9,9 +9,8 @@ from agents.Agent import Agent
 
 class Environment:
 
-	ACTION_NR = 8					# Number of action wich the agent knows about: N, NW, NE, SW, E, SE, S, W
+	ACTION_NR = 4					# Number of action wich the agent knows about: N, E, S, W
 	STATE_NR = 13					# Number of states defined
-
 
 	def __init__(self, height, width, gridworld, agents = []):
 		self.gridworld = gridworld
@@ -31,46 +30,46 @@ class Environment:
 		return id
 
 	def getRewardMatrix(self):
-		# Action order: N, NW, NE, SW, E, SE, S, W
+		# Action order: N, E, S, W
 
 		# State 0 - No enemy in front, no block above, no block in front
-		self.reward_matrix[0,:] = [-1, 1, 0, -1, 0, 1, 1, 1]
+		self.reward_matrix[0,:] = [-1, 1, 1, 1]
 
 		# State 1 - Block above, no enemy in front, no enemy in back
-		self.reward_matrix[1,:] = [-1, 0.9, 1, -1, 1, 1, 1, 1]
+		self.reward_matrix[1,:] = [-1, 1, 1, 1]
 
 		# State 2 - Enemy in front in 1? tile range, no tiles above / tiles above
-		self.reward_matrix[2,:] = [-1, -1, +1, -1, 0.9, 1, 1, 1]
+		self.reward_matrix[2,:] = [-1, 1, 1, 1]
 
 		# State 3 - Small obstacle
-		self.reward_matrix[3,:] = [-1, -1, -1, -1, 1, 1, 1, 1]
+		self.reward_matrix[3,:] = [-1, 1, 1, 1]
 
 		# State 4 - Large obstacle in front
-		self.reward_matrix[4,:] = [0.9, -1, 0, -0.5, 1, 1, 1, 1]
+		self.reward_matrix[4,:] = [0.9, 1, 1, 1]
 
 		# State 5 - Block above, enemy in front: range >= 2 tiles
-		self.reward_matrix[5,:] = [-1, 0.9, 1, -1, 0.9, 1, 1, 1]
+		self.reward_matrix[5,:] = [-1, 1, 1, 1]
 
 		# State 6 - In air
-		self.reward_matrix[6,:] = [0.1, 1, 0, -1, 0, 1, 1, 1]
+		self.reward_matrix[6,:] = [0.1, 1, 1, 1]
 
 		# State 7 - No floor in front
-		self.reward_matrix[7,:] = [-1, -1, -1, -1, 1, 1, 1, 1]
+		self.reward_matrix[7,:] = [-1,  1, 1, 1]
 
 		# State 8 - Stuck in front of pipe
-		self.reward_matrix[8,:] = [1, -1, -1, -0.5, 1, 1, 1, 1]
+		self.reward_matrix[8,:] = [1, 1, 1, 1]
 
 		# State 9 - Enemy behind 1 tile
-		self.reward_matrix[9,:] = [-1, -1, 1, -1, -1, 1, 1, 1]
+		self.reward_matrix[9,:] = [-1, 1, 1, 1]
 
 		# State 10 - Stuck in front of pipe while in air
-		self.reward_matrix[10,:] = [1, -1, -1, -0.8, -1, 1, 1, 1]
+		self.reward_matrix[10,:] = [1, 1, 1, 1]
 
 		# State 11 - Stuck in front of mini pipe
-		self.reward_matrix[11,:] = [-1, -1, -1, -1, 1, 1, 1, 1]
+		self.reward_matrix[11,:] = [-1, 1, 1, 1]
 
 		# State 12 - Enemy in front while in air
-		self.reward_matrix[12,:] = [1, -1, -1, -1, -1, 1, 1, 1]
+		self.reward_matrix[12,:] = [1,  1, 1, 1]
 
 		return self.reward_matrix
 
@@ -126,16 +125,34 @@ class Environment:
 
 		return frontier
 
+	def getMovesFromAction(self, action):
+		if action == 0:		# Left
+			return (0, -1)
+		if action == 1:		# Right
+			return (0, 1)
+		if action == 2:		# Up
+			return (-1, 0)
+		if action == 3:		# Down
+			return (1, 0)
+
+	def getValidCell(self, agent, moveX, moveY):
+		print(agent.curX + moveX, agent.curY + moveY)
+		if agent.curX + moveX > 0 and agent.curX + moveX < self.width and agent.curY + moveY > 0 and agent.curY + moveY < self.height:
+			return self.gridworld.cells[agent.curX + moveX][agent.curY + moveY]
+		return None
+
 	def step(self, id, action):
-		cell = self.gridworld.cells[self.agents[id].curX][self.agents[id].curY - 1]
-		if cell.occupied == False and cell.obstacle == False:
+		(moveX, moveY) = self.getMovesFromAction(action)
+		cell = self.getValidCell(self.agents[id], moveX, moveY)
+		if cell != None and cell.occupied == False and cell.obstacle == False:
 			self.gridworld.cells[self.agents[id].curX][self.agents[id].curY].occupied = False
-			self.agents[id].curY = self.agents[id].curY - 1
+			self.agents[id].setLocation(self.agents[id].curX + moveX, self.agents[id].curY + moveY)
 			self.gridworld.cells[self.agents[id].curX][self.agents[id].curY].visited = True
 			self.gridworld.cells[self.agents[id].curX][self.agents[id].curY].occupied = True
 			
 		return 1, False
 
 	def runOneIter(self):
-		self.agents[0].step(self)
+		for i in range(len(self.agents)):
+			self.agents[i].step(self)
 		self.updateFrontiers()
