@@ -133,7 +133,7 @@ class GridUI(Frame):
 		return grid.cells[xIdx][yIdx].visited
 
 	def getOffsets(self, height, width):
-		"""Defines an offset from the top left corner of the screen. If the frame is smaller then the threshol the offset is bigger"""
+		"""Defines an offset from the top left corner of the screen. If the frame is smaller then the threshold the offset is bigger"""
 		xOffset = 100
 		yOffset = 100
 		if height <= 10:

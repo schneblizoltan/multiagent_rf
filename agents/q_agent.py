@@ -20,9 +20,8 @@ class QAgent(Agent):
             "alpha" : 0.01,                                                                 # Learning rate
             "eps": 0.1,                                                                     # Exploration rate
             "eps_decay": 0.995,                                                             # Speed of epsilon decay
-            "eps_min": 0.1,         
-            "gamma": 0.95,                                                                  # Discount
-            "n_iter": 15000 }                                                               # Number of iterations
+            "eps_min": 0.01,         
+            "gamma": 0.95 }                                                               # Number of iterations
         self.q_matrix_name = "q_matrix_" + str(self.id)
         
     def load_from_file(self, file):

@@ -1,4 +1,4 @@
-import sys
+import sys, time
 
 from utils.ConfigFileReader import ConfigFileReader
 from gui import GridUI, Cell, Grid
@@ -9,6 +9,9 @@ from agents.Agent import Agent
 from environment.environment import Environment
 
 MAX_SCREEN_HEIGHT = 700
+NR_OF_EPISODES = 15000
+
+RESULT_FILE_NAME = "time_15k_q_agent.txt"
 
 def readConfigFile(fileName):
     cfr = ConfigFileReader()
@@ -46,6 +49,30 @@ def initGridWorld(width, height, obstacles, initLocs, numRobots):
 
     return env
 
+def initEnvironment(env, obstacles, initLocs):
+    agents = env.agents
+    gridworld = Grid.Grid(env.gridworld.width, env.gridworld.height, obstacles)
+    env.gridworld = gridworld
+    i = 0
+    for initLoc in initLocs:
+        agents[i].setLocation(initLoc[0], initLoc[1])
+        env.gridworld.cells[initLoc[0]][initLoc[1]].occupied = True
+        env.gridworld.cells[initLoc[0]][initLoc[1]].visited = True
+        i = i + 1
+
+    env.agents = agents
+    env.updateFrontiers()
+
+def decreaseAgentsExplorationRate(env):
+    for agent in env.agents:
+        agent.update_eps()
+
+def printElapsedTimeToFile(time):
+    if time == 0:
+        time = 15000
+    with open(RESULT_FILE_NAME, 'a') as out:
+        out.write(str(time) + '\n')    
+
 def main():
     height, width, numRobots, initLocs, obstacles = readConfigFile("config_files/barmaze.config")
 
@@ -56,12 +83,29 @@ def main():
     root = Tk()
     gui = GridUI.GridUI(root, height, width, cellSize, env.gridworld, env.agents, env.frontier)
 
-    def run():
+    currEpisode = 0
+    ellapsedTime = 0
+
+    def newEpisode(currEpisode, ellapsedTime):
+        currEpisode += 1
+        print(currEpisode, "/", NR_OF_EPISODES, " episode")
+        initEnvironment(env, obstacles, initLocs)
+        decreaseAgentsExplorationRate(env)
+        printElapsedTimeToFile(ellapsedTime)
         env.runOneIter()
         gui.redraw(height, width, cellSize, env.gridworld, env.agents, env.frontier)
-        root.after(50, run)
+        root.after(15000, lambda : newEpisode(currEpisode, ellapsedTime))
+    
+    def run(currEpisode, ellapsedTime):
+        ellapsedTime += 1      
+        env.runOneIter()
+        gui.redraw(height, width, cellSize, env.gridworld, env.agents, env.frontier)
+        if env.isExplored():
+            newEpisode(currEpisode, ellapsedTime)
+        root.after(1, lambda : run(currEpisode, ellapsedTime))
 
-    root.after(50, run)
+    root.after(1, lambda : run(currEpisode, ellapsedTime))
+    root.after(15000, lambda : newEpisode(currEpisode, ellapsedTime))
     root.mainloop()
 
 if __name__ == '__main__':
