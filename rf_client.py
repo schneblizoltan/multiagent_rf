@@ -5,13 +5,15 @@ from gui import GridUI, Cell, Grid
 from tkinter import Tk, Canvas, Frame
 from math import floor
 from agents.q_agent import QAgent
+from agents.sarsa_agent import SarsaAgent
 from agents.Agent import Agent
 from environment.environment import Environment
 
 MAX_SCREEN_HEIGHT = 700
 NR_OF_EPISODES = 15000
 
-RESULT_FILE_NAME = "time_15k_q_agent.txt"
+TIME_RESULT_FILE_NAME = "time_15k_q_agent.txt"
+DISCOVER_RESULT_FILE_NAME = "discover_15k_q_agent.txt"
 
 def readConfigFile(fileName):
     cfr = ConfigFileReader()
@@ -70,8 +72,12 @@ def decreaseAgentsExplorationRate(env):
 def printElapsedTimeToFile(time):
     if time == 0:
         time = 15000
-    with open(RESULT_FILE_NAME, 'a') as out:
-        out.write(str(time) + '\n')    
+    with open(TIME_RESULT_FILE_NAME, 'a') as out:
+        out.write(str(time) + '\n')
+    
+def printDiscoveredAreaPercentage(env):
+    with open(DISCOVER_RESULT_FILE_NAME, 'a') as out:
+        out.write(str(env.gridworld.getDiscoveredPercentage()) + '\n')    
 
 def main():
     height, width, numRobots, initLocs, obstacles = readConfigFile("config_files/barmaze.config")
@@ -89,9 +95,10 @@ def main():
     def newEpisode(currEpisode, ellapsedTime):
         currEpisode += 1
         print(currEpisode, "/", NR_OF_EPISODES, " episode")
+        printElapsedTimeToFile(ellapsedTime)
+        printDiscoveredAreaPercentage(env)
         initEnvironment(env, obstacles, initLocs)
         decreaseAgentsExplorationRate(env)
-        printElapsedTimeToFile(ellapsedTime)
         env.runOneIter()
         gui.redraw(height, width, cellSize, env.gridworld, env.agents, env.frontier)
         root.after(15000, lambda : newEpisode(currEpisode, ellapsedTime))

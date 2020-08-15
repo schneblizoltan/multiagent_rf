@@ -10,7 +10,7 @@ from agents.Agent import Agent
 class Environment:
 
 	ACTION_NR = 4					# Number of action wich the agent knows about: N, E, S, W
-	STATE_NR = 5					# Number of states defined
+	STATE_NR = 15					# Number of states defined
 
 	def __init__(self, height, width, gridworld, agents = []):
 		self.gridworld = gridworld
@@ -27,6 +27,37 @@ class Environment:
 		self.frontier = self.computeFrontier()
 
 	def getState(self, id):
+		frontierCells = self.computeFrontier()
+		if (((self.agents[id].curX, self.agents[id].curY + 1) in frontierCells) and 
+			((self.agents[id].curX, self.agents[id].curY - 1) in frontierCells)):
+			return 9
+		if (((self.agents[id].curX, self.agents[id].curY + 1) in frontierCells) and 
+			((self.agents[id].curX - 1, self.agents[id].curY) in frontierCells)):
+			return 10
+		if (((self.agents[id].curX, self.agents[id].curY + 1) in frontierCells) and 
+			((self.agents[id].curX + 1, self.agents[id].curY) in frontierCells)):
+			return 11
+
+		if (((self.agents[id].curX, self.agents[id].curY - 1) in frontierCells) and 
+			((self.agents[id].curX - 1, self.agents[id].curY) in frontierCells)):
+			return 12
+		if (((self.agents[id].curX, self.agents[id].curY - 1) in frontierCells) and 
+			((self.agents[id].curX + 1, self.agents[id].curY) in frontierCells)):
+			return 13
+
+		if (((self.agents[id].curX - 1, self.agents[id].curY) in frontierCells) and 
+			((self.agents[id].curX + 1, self.agents[id].curY) in frontierCells)):
+			return 14
+
+		if (self.agents[id].curX, self.agents[id].curY + 1) in frontierCells:
+			return 5
+		if (self.agents[id].curX, self.agents[id].curY - 1) in frontierCells:
+			return 6
+		if (self.agents[id].curX - 1, self.agents[id].curY) in frontierCells:
+			return 7
+		if (self.agents[id].curX + 1, self.agents[id].curY) in frontierCells:
+			return 8
+
 		cell = self.getValidCell(self.agents[id], -1, 0)
 		if cell != None and (cell.occupied == True or cell.obstacle == True):
 			return 1
@@ -58,6 +89,36 @@ class Environment:
 		
 		# State 4 - Agent/wall right, no agent and wall left, right, down and nothing discovered around
 		self.reward_matrix[4,:] = [1, -1, 1, 1]
+
+		# State 5 - Frontier right, no agent and wall left, right, down and nothing discovered around
+		self.reward_matrix[5,:] = [0, 1, 0, 0]
+
+		# State 6 - Frontier left, no agent and wall left, right, down and nothing discovered around
+		self.reward_matrix[6,:] = [1, 0, 0, 0]
+
+		# State 7 - Frontier up, no agent and wall left, right, down and nothing discovered around
+		self.reward_matrix[7,:] = [0, 0, 1, 0]
+
+		# State 8 - Frontier down, no agent and wall left, right, down and nothing discovered around
+		self.reward_matrix[8,:] = [0, 0, 0, 1]
+
+		# State 9 - Frontier left-right, no agent and wall left, right, down and nothing discovered around
+		self.reward_matrix[9,:] = [1, 1, 0, 0]
+
+		# State 10 - Frontier up-right, no agent and wall left, right, down and nothing discovered around
+		self.reward_matrix[10,:] = [0, 1, 1, 0]
+
+		# State 11 - Frontier down-right, no agent and wall left, right, down and nothing discovered around
+		self.reward_matrix[11,:] = [0, 1, 0, 1]
+
+		# State 12 - Frontier left-up, no agent and wall left, right, down and nothing discovered around
+		self.reward_matrix[12,:] = [1, 0, 1, 0]
+
+		# State 13 - Frontier left-down, no agent and wall left, right, down and nothing discovered around
+		self.reward_matrix[13,:] = [1, 0, 0, 1]
+		
+		# State 14 - Frontier up-down, no agent and wall left, right, down and nothing discovered around
+		self.reward_matrix[13,:] = [0, 0, 1, 1]
 
 		return self.reward_matrix
 
@@ -124,7 +185,8 @@ class Environment:
 			return (1, 0)
 
 	def getValidCell(self, agent, moveX, moveY):
-		if agent.curX + moveX > 0 and agent.curX + moveX < self.width and agent.curY + moveY > 0 and agent.curY + moveY < self.height:
+		if self.gridworld.inGrid((agent.curX + moveX, agent.curY + moveY)):
+		# if agent.curX + moveX > 0 and agent.curX + moveX < self.width and agent.curY + moveY > 0 and agent.curY + moveY < self.height:
 			return self.gridworld.cells[agent.curX + moveX][agent.curY + moveY]
 		return None
 
