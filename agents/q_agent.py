@@ -18,9 +18,9 @@ class QAgent(Agent):
         self.cumulative_reward = 0
         self.config = {
             "alpha" : 0.01,                                                                 # Learning rate
-            "eps": 0.1,                                                                     # Exploration rate
+            "eps": 1.0,                                                                     # Exploration rate
             "eps_decay": 0.995,                                                             # Speed of epsilon decay
-            "eps_min": 0.01,         
+            "eps_min": 0.1,         
             "gamma": 0.95 }                                                               # Number of iterations
         self.q_matrix_name = "q_matrix_" + str(self.id)
         
@@ -60,7 +60,7 @@ class QAgent(Agent):
     def step(self, env):
         self.state = env.getState(self.id)
         action = self.act()
-        reward, done = env.step(self.id, action)
+        reward, done = env.step(self.id, self.state, action)
         
         self.cumulative_reward += reward
         

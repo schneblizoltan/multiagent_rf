@@ -10,10 +10,10 @@ from agents.Agent import Agent
 from environment.environment import Environment
 
 MAX_SCREEN_HEIGHT = 700
-NR_OF_EPISODES = 15000
+NR_OF_EPISODES = 10000
 
-TIME_RESULT_FILE_NAME = "time_15k_q_agent.txt"
-DISCOVER_RESULT_FILE_NAME = "discover_15k_q_agent.txt"
+TIME_RESULT_FILE_NAME = "time_15k_sarsa_agent.txt"
+DISCOVER_RESULT_FILE_NAME = "discover_15k_sarsa_agent.txt"
 
 def readConfigFile(fileName):
     cfr = ConfigFileReader()
@@ -36,7 +36,7 @@ def printConfigValues(height, width, numRobots, initLocs, obstacles):
 def initGridWorld(width, height, obstacles, initLocs, numRobots):
     gridworld = Grid.Grid(width, height, obstacles)
     env = Environment(height, width, gridworld)
-    agents = [QAgent(j, -1, -1, env.state_n, env.action_n) for j in range(numRobots)]
+    agents = [SarsaAgent(j, -1, -1, env.state_n, env.action_n) for j in range(numRobots)]
 
     i = 0
     for initLoc in initLocs:
@@ -92,27 +92,25 @@ def main():
     currEpisode = 0
     ellapsedTime = 0
 
-    def newEpisode(currEpisode, ellapsedTime):
-        currEpisode += 1
-        print(currEpisode, "/", NR_OF_EPISODES, " episode")
-        printElapsedTimeToFile(ellapsedTime)
-        printDiscoveredAreaPercentage(env)
-        initEnvironment(env, obstacles, initLocs)
-        decreaseAgentsExplorationRate(env)
-        env.runOneIter()
-        gui.redraw(height, width, cellSize, env.gridworld, env.agents, env.frontier)
-        root.after(15000, lambda : newEpisode(currEpisode, ellapsedTime))
-    
     def run(currEpisode, ellapsedTime):
-        ellapsedTime += 1      
-        env.runOneIter()
-        gui.redraw(height, width, cellSize, env.gridworld, env.agents, env.frontier)
-        if env.isExplored():
-            newEpisode(currEpisode, ellapsedTime)
-        root.after(1, lambda : run(currEpisode, ellapsedTime))
+        if env.isExplored() or ellapsedTime == 300:
+            currEpisode += 1
+            print(currEpisode, "/", NR_OF_EPISODES, " episode")
+            printElapsedTimeToFile(ellapsedTime)
+            printDiscoveredAreaPercentage(env)
+            initEnvironment(env, obstacles, initLocs)
+            decreaseAgentsExplorationRate(env)
+            ellapsedTime = 0
+            env.runOneIter()
+            gui.redraw(height, width, cellSize, env.gridworld, env.agents, env.frontier)
+            root.after(50, lambda : run(currEpisode, ellapsedTime))
+        else:
+            ellapsedTime += 1      
+            env.runOneIter()
+            gui.redraw(height, width, cellSize, env.gridworld, env.agents, env.frontier)
+            root.after(50, lambda : run(currEpisode, ellapsedTime))
 
-    root.after(1, lambda : run(currEpisode, ellapsedTime))
-    root.after(15000, lambda : newEpisode(currEpisode, ellapsedTime))
+    root.after(50, lambda : run(currEpisode, ellapsedTime))
     root.mainloop()
 
 if __name__ == '__main__':
