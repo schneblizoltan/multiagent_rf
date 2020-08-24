@@ -20,7 +20,7 @@ class QAgent(Agent):
             "alpha" : 0.01,                                                                 # Learning rate
             "eps": 1.0,                                                                     # Exploration rate
             "eps_decay": 0.995,                                                             # Speed of epsilon decay
-            "eps_min": 0.1,         
+            "eps_min": 0.01,         
             "gamma": 0.95 }                                                               # Number of iterations
         self.q_matrix_name = "q_matrix_" + str(self.id)
         

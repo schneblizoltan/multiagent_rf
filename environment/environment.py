@@ -175,53 +175,18 @@ class Environment:
 		
 		return self.reward_matrix
 
-	# Method to print(the current grid to the output descriptor)
-	def printGrid(self):
-
-		for i in range(self.height):
-			for j in range(self.width):
-				# If the current cell is an obstacle, print(#)
-				if self.gridworld.cells[i][j].obstacle == True:
-					sys.stdout.write(' # ')
-				# If the current cell is occupied by an agent, print(its id)
-				elif self.gridworld.cells[i][j].occupied == True:
-					agentId = 0
-					for agent in self.agents:
-						if agent.curX == i and agent.curY == j:
-							agentId = agent.id
-					temp = ' ' + str(agentId) + ' '
-					sys.stdout.write(temp)
-				# If the current cell is a frontier, print(a |)
-				elif (i, j) in self.frontier:
-					sys.stdout.write(' | ')
-				# Otherwise, print(-)
-				else:
-					if self.gridworld.cells[i][j].visited == True:
-						sys.stdout.write(' . ')
-					else:
-						sys.stdout.write(' - ')
-			sys.stdout.write('\n')
-
-	# Method to compute the frontiers
 	def computeFrontier(self):
-
 		frontier = []
 
-		# Iterate over all cells in the grid
 		for i in range(self.height):
 			for j in range(self.width):
-				# We compute 8-neighbors for only those cells that haven't been visited or are obstacles
-				# Only such cells are possible candidates for the frontier
 				if self.gridworld.cells[i][j].visited == False and self.gridworld.cells[i][j].obstacle == False:
 					point = (i, j)
 					neighbors = self.gridworld.get8Neighbors(point)
-					# Now we see if there is at least one neighbor of the current cell which has been visited
-					# In such a case, the current cell would become a frontier cell
 					frontierFlag = False
 					for nbhr in neighbors:
 						if self.gridworld.cells[nbhr[0]][nbhr[1]].visited == True:
 							frontierFlag = True
-
 					if frontierFlag == True:
 						frontier.append((i, j))
 
@@ -239,7 +204,6 @@ class Environment:
 
 	def getValidCell(self, agent, moveX, moveY):
 		if self.gridworld.inGrid((agent.curX + moveX, agent.curY + moveY)):
-		# if agent.curX + moveX > 0 and agent.curX + moveX < self.width and agent.curY + moveY > 0 and agent.curY + moveY < self.height:
 			return self.gridworld.cells[agent.curX + moveX][agent.curY + moveY]
 		return None
 

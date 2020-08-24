@@ -14,7 +14,6 @@ class GridUI(Frame):
 		self.initializeGrid(height, width, cellSize, grid, robots, frontier)
 
 	def initializeFrame(self, frame, height, width, cellSize):
-		"""Sets the correct frame size"""
 		frameHeight = str((height + 2) * cellSize)
 		frameWidth = str((width + 2) * cellSize)
 		xOffset, yOffset = self.getOffsets(height, width)
@@ -101,8 +100,6 @@ class GridUI(Frame):
 					self.canvas.create_rectangle(curX, curY, curX + cellSize, curY + cellSize, outline = Colors.OUTLINE, fill = Colors.UNVISITED, width = 2)
 
 	def drawRobotRectangles(self, curX, curY, xIdx, yIdx, cellSize, robots):
-		"""Check if the current location corresponds to that of any robot"""
-
 		robotFlag = False
 		for robot in robots:
 			if robot.curX == xIdx and robot.curY == yIdx:
@@ -112,8 +109,6 @@ class GridUI(Frame):
 		return robotFlag
 
 	def drawFrontierRectangles(self, curX, curY, xIdx, yIdx, cellSize, frontier, grid):
-		"""Ceck if the current location corresponds to that of any frontier block"""
-
 		frontierFlag = False
 		for pt in frontier:
 			if pt[0] == xIdx and pt[1] == yIdx:
@@ -123,17 +118,12 @@ class GridUI(Frame):
 		return frontierFlag
 
 	def isObstacle(self, grid, xIdx, yIdx):
-		"""Cehck if the current grid element is an obstacle"""
-
 		return grid.cells[xIdx][yIdx].obstacle
 
 	def isVisited(self, grid, xIdx, yIdx):
-		"""Check if the current grid element is already visited"""
-
 		return grid.cells[xIdx][yIdx].visited
 
 	def getOffsets(self, height, width):
-		"""Defines an offset from the top left corner of the screen. If the frame is smaller then the threshold the offset is bigger"""
 		xOffset = 100
 		yOffset = 100
 		if height <= 10:

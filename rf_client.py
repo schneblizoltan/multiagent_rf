@@ -12,31 +12,23 @@ from environment.environment import Environment
 MAX_SCREEN_HEIGHT = 700
 NR_OF_EPISODES = 10000
 
-TIME_RESULT_FILE_NAME = "time_15k_sarsa_agent.txt"
-DISCOVER_RESULT_FILE_NAME = "discover_15k_sarsa_agent.txt"
+TIME_RESULT_FILE_NAME = "time_15k_q_agent.txt"
+DISCOVER_RESULT_FILE_NAME = "discover_15k_q_agent.txt"
 
 def readConfigFile(fileName):
     cfr = ConfigFileReader()
 
-    ret, height, width, numRobots, initLocs, obstacles = cfr.readConfigFile("config_files/barmaze.config")
+    ret, height, width, numRobots, initLocs, obstacles = cfr.readConfigFile(fileName)
     if ret == -1: 
-        print('readCfg() Unsuccessful!')
+        print('Unsuccessfully read from config file!')
         sys.exit(-1)
     
-    printConfigValues(height, width, numRobots, initLocs, obstacles)
     return height, width, numRobots, initLocs, obstacles
-
-def printConfigValues(height, width, numRobots, initLocs, obstacles):
-    print('height =', height)
-    print('width =', width)
-    print('numRobots =', numRobots)
-    print('initLocs =', initLocs)
-    print('obstacles =', obstacles)
 
 def initGridWorld(width, height, obstacles, initLocs, numRobots):
     gridworld = Grid.Grid(width, height, obstacles)
     env = Environment(height, width, gridworld)
-    agents = [SarsaAgent(j, -1, -1, env.state_n, env.action_n) for j in range(numRobots)]
+    agents = [QAgent(j, -1, -1, env.state_n, env.action_n) for j in range(numRobots)]
 
     i = 0
     for initLoc in initLocs:
@@ -47,8 +39,7 @@ def initGridWorld(width, height, obstacles, initLocs, numRobots):
 
     env.agents = agents
     env.updateFrontiers()
-    print(env.printGrid())
-
+    
     return env
 
 def initEnvironment(env, obstacles, initLocs):
